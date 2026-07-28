@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <!-- Header Section -->
+    <section class="bg-green-gradient text-white py-5">
+        <div class="container py-4 text-center">
+            <h1 class="display-4 fw-bold mb-3">About GreenPlate</h1>
+            <p class="lead mb-0 text-white-50">Bridging the gap between food surplus and food scarcity.</p>
+        </div>
+    </section>
+
+    <!-- Mission & Vision Section -->
+    <section class="py-5 bg-white">
+        <div class="container py-4">
+            <div class="row g-4 align-items-center">
+                <!-- Mission Card -->
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm p-4 rounded-4 h-100 border-start border-success border-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success me-3">
+                                    <i class="bi bi-bullseye fs-3"></i>
+                                </div>
+                                <h2 class="card-title h3 fw-bold mb-0">Our Mission</h2>
+                            </div>
+                            <p class="card-text text-muted lead fs-6">
+                                Our mission is to eliminate edible food waste by providing a seamless, AI-driven platform that connects food donors like restaurants, hotels, and caterers directly with local NGOs and community shelters in real-time.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Vision Card -->
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm p-4 rounded-4 h-100 border-start border-success border-4">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-success bg-opacity-10 p-3 rounded-circle text-success me-3">
+                                    <i class="bi bi-eye fs-3"></i>
+                                </div>
+                                <h2 class="card-title h3 fw-bold mb-0">Our Vision</h2>
+                            </div>
+                            <p class="card-text text-muted lead fs-6">
+                                We envision a world where zero surplus food goes to landfills, every hunger spot is served efficiently through technology, and communities collaborate sustainably to feed more lives every day.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How GreenPlate Works Section -->
+    <section class="py-5 bg-light border-top">
+        <div class="container py-4">
+            <div class="text-center mb-5">
+                <h2 class="display-6 fw-bold text-dark mb-3">How GreenPlate Works</h2>
+                <p class="text-muted lead">A simple 3-step process to save food and feed lives.</p>
+            </div>
+            <div class="row g-4 text-center">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm p-4 rounded-4 h-100">
+                        <div class="card-body">
+                            <div class="mb-3 text-success">
+                                <span class="badge bg-success rounded-circle fs-5 px-3 py-2 mb-3">1</span>
+                                <i class="bi bi-card-checklist display-5 d-block mt-2"></i>
+                            </div>
+                            <h3 class="h4 fw-bold">1. Restaurants Post Food</h3>
+                            <p class="text-muted">Food businesses post details of surplus meals including quantity, shelf-life, and pickup location.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm p-4 rounded-4 h-100">
+                        <div class="card-body">
+                            <div class="mb-3 text-success">
+                                <span class="badge bg-success rounded-circle fs-5 px-3 py-2 mb-3">2</span>
+                                <i class="bi bi-cpu display-5 d-block mt-2"></i>
+                            </div>
+                            <h3 class="h4 fw-bold">2. AI Smart Match</h3>
+                            <p class="text-muted">Our AI matches the donation with the nearest verified NGO based on distance, quantity, and urgency.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm p-4 rounded-4 h-100">
+                        <div class="card-body">
+                            <div class="mb-3 text-success">
+                                <span class="badge bg-success rounded-circle fs-5 px-3 py-2 mb-3">3</span>
+                                <i class="bi bi-truck display-5 d-block mt-2"></i>
+                            </div>
+                            <h3 class="h4 fw-bold">3. Pickup & Deliver</h3>
+                            <p class="text-muted">The matched NGO receives a notification, picks up the fresh food, and distributes it to people in need.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
