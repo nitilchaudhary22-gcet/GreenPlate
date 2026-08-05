@@ -5,3 +5,6 @@ from flask_sqlalchemy import SQLAlchemy
 # We do not pass the app here so that we can initialize it later in app.py
 # This is a common pattern to avoid circular imports.
 db = SQLAlchemy()
+
+# Import models here so they are registered with SQLAlchemy
+from models.user import User
