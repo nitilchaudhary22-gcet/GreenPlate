@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-12 text-center mb-4">
+            <h1 class="display-4 fw-bold text-success">NGO Dashboard</h1>
+            <p class="lead">Welcome back, {{ user.full_name }}!</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 feature-card mb-4">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-search text-success fs-1 mb-3"></i>
+                    <h5 class="card-title fw-bold">Browse Donations</h5>
+                    <p class="card-text text-muted">Find available food donations near you.</p>
+                    <a href="#" class="btn btn-success rounded-pill px-4">Browse</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 feature-card mb-4">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-basket text-primary fs-1 mb-3"></i>
+                    <h5 class="card-title fw-bold">My Claims</h5>
+                    <p class="card-text text-muted">Manage your claimed food listings.</p>
+                    <a href="#" class="btn btn-outline-primary rounded-pill px-4">View Claims</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 feature-card mb-4">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-person-lines-fill text-info fs-1 mb-3"></i>
+                    <h5 class="card-title fw-bold">Profile Settings</h5>
+                    <p class="card-text text-muted">Update your NGO details.</p>
+                    <a href="#" class="btn btn-outline-info rounded-pill px-4">Settings</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

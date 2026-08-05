@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session
+from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # Import the initialized database instance from our models package
@@ -15,6 +16,16 @@ def create_app():
     # Create tables if they do not exist
     with app.app_context():
         db.create_all()
+
+    # Decorator to protect routes that require login
+    def login_required(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # If user is not logged in, redirect to login page
+            if "user_id" not in session:
+                return redirect(url_for("login"))
+            return f(*args, **kwargs)
+        return decorated_function
 
     @app.route("/")
     def home():
@@ -49,8 +60,15 @@ def create_app():
             # If password is correct, store user id in Flask session
             session["user_id"] = user.id
             
-            # Redirect to Home page
-            return redirect(url_for("home"))
+            # Redirect users based on their role
+            if user.role == "restaurant":
+                return redirect(url_for("restaurant_dashboard"))
+            elif user.role == "ngo":
+                return redirect(url_for("ngo_dashboard"))
+            elif user.role == "admin":
+                return redirect(url_for("admin_dashboard"))
+            else:
+                return redirect(url_for("home"))
             
         # On GET request, render the login page
         return render_template("login.html")
@@ -62,11 +80,16 @@ def create_app():
             full_name = request.form.get("full_name")
             email = request.form.get("email")
             password = request.form.get("password")
-            role = request.form.get("role", "user")
+            role = request.form.get("role")
             
             # Validate that required fields are not empty
-            if not full_name or not email or not password:
+            if not full_name or not email or not password or not role:
                 return render_template("register.html", error="Please fill out all required fields.")
+                
+            # Validate role
+            allowed_roles = ["restaurant", "ngo"]
+            if role not in allowed_roles:
+                return render_template("register.html", error="Invalid role selected. Please choose a valid role.")
                 
             # Check whether the email already exists in the database
             existing_user = User.query.filter_by(email=email).first()
@@ -93,6 +116,40 @@ def create_app():
             
         # On GET request, just render the page
         return render_template("register.html")
+
+    # --- Dashboards ---
+
+    @app.route("/restaurant/dashboard")
+    @login_required
+    def restaurant_dashboard():
+        # Fetch the current logged-in user
+        user = User.query.get(session["user_id"])
+        
+        # Verify role, otherwise redirect to home
+        if not user or user.role != "restaurant":
+            return redirect(url_for("home"))
+            
+        return render_template("restaurant_dashboard.html", user=user)
+
+    @app.route("/ngo/dashboard")
+    @login_required
+    def ngo_dashboard():
+        user = User.query.get(session["user_id"])
+        
+        if not user or user.role != "ngo":
+            return redirect(url_for("home"))
+            
+        return render_template("ngo_dashboard.html", user=user)
+
+    @app.route("/admin/dashboard")
+    @login_required
+    def admin_dashboard():
+        user = User.query.get(session["user_id"])
+        
+        if not user or user.role != "admin":
+            return redirect(url_for("home"))
+            
+        return render_template("admin_dashboard.html", user=user)
 
     return app
 
