@@ -8,3 +8,4 @@ db = SQLAlchemy()
 
 # Import models here so they are registered with SQLAlchemy
 from models.user import User
+from models.food_donation import FoodDonation

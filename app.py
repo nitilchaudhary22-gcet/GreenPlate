@@ -5,6 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # Import the initialized database instance from our models package
 from models import db
 from models.user import User
+from models.food_donation import FoodDonation
+from datetime import datetime
 
 def create_app():
     app = Flask(__name__)
@@ -130,6 +132,138 @@ def create_app():
             return redirect(url_for("home"))
             
         return render_template("restaurant_dashboard.html", user=user)
+
+    @app.route("/restaurant/donate", methods=["GET", "POST"])
+    @login_required
+    def restaurant_donate():
+        # Fetch the current logged-in user
+        user = User.query.get(session["user_id"])
+        
+        # Verify role, only restaurant users can donate food
+        if not user or user.role != "restaurant":
+            return redirect(url_for("home"))
+            
+        if request.method == "POST":
+            # Read form data
+            food_name = request.form.get("food_name")
+            quantity = request.form.get("quantity")
+            food_type = request.form.get("food_type")
+            expiry_time_str = request.form.get("expiry_time")
+            description = request.form.get("description")
+            
+            # Validation
+            if not food_name or not quantity or not expiry_time_str:
+                return render_template("donate_food.html", error="Please provide food name, quantity, and expiry time.", user=user)
+                
+            try:
+                quantity = int(quantity)
+                if quantity <= 0:
+                    return render_template("donate_food.html", error="Quantity must be greater than 0.", user=user)
+            except ValueError:
+                return render_template("donate_food.html", error="Please enter a valid number for quantity.", user=user)
+                
+            try:
+                # Parse HTML5 datetime-local format (YYYY-MM-DDTHH:MM)
+                expiry_time = datetime.strptime(expiry_time_str, "%Y-%m-%dT%H:%M")
+            except ValueError:
+                return render_template("donate_food.html", error="Invalid expiry time format.", user=user)
+                
+            # If a food type was provided, we can prepend it to the description
+            if food_type:
+                description = f"[{food_type}] {description if description else ''}".strip()
+                
+            # Create a FoodDonation object
+            new_donation = FoodDonation(
+                food_name=food_name,
+                quantity=quantity,
+                expiry_time=expiry_time,
+                description=description,
+                restaurant_id=user.id
+            )
+            
+            # Save it into SQLite and commit the transaction
+            db.session.add(new_donation)
+            db.session.commit()
+            
+            # Redirect to Restaurant Dashboard after successful donation
+            return redirect(url_for("restaurant_dashboard"))
+            
+        # On GET request, render the donation form
+        return render_template("donate_food.html", user=user)
+
+    @app.route("/restaurant/my-donations")
+    @login_required
+    def restaurant_my_donations():
+        # Fetch the current logged-in user
+        user = User.query.get(session["user_id"])
+        
+        # Verify role, only restaurant users can view this page
+        if not user or user.role != "restaurant":
+            return redirect(url_for("home"))
+            
+        # Fetch donations belonging to the logged-in restaurant
+        # Best practice: use filter_by for exact matches and order by ID or date
+        donations = FoodDonation.query.filter_by(restaurant_id=user.id).order_by(FoodDonation.id.desc()).all()
+        
+        # Render the template and pass the donations list
+        return render_template("my_donations.html", user=user, donations=donations)
+
+    @app.route("/restaurant/donation/<int:donation_id>/edit", methods=["GET", "POST"])
+    @login_required
+    def edit_restaurant_donation(donation_id):
+        # Fetch the current logged-in user
+        user = User.query.get(session["user_id"])
+        
+        # Verify role, only restaurant users can edit
+        if not user or user.role != "restaurant":
+            return redirect(url_for("home"))
+            
+        # Fetch the donation using get_or_404
+        donation = FoodDonation.query.get_or_404(donation_id)
+        
+        # Verify ownership: only the owner can edit their own donation
+        if donation.restaurant_id != session["user_id"]:
+            return redirect(url_for("restaurant_my_donations"))
+            
+        if request.method == "POST":
+            # Read form data
+            food_name = request.form.get("food_name")
+            quantity = request.form.get("quantity")
+            expiry_time_str = request.form.get("expiry_time")
+            description = request.form.get("description")
+            
+            # Validation
+            if not food_name or not quantity or not expiry_time_str:
+                return render_template("edit_donation.html", donation=donation, user=user, error="Please provide food name, quantity, and expiry time.")
+                
+            try:
+                quantity = int(quantity)
+                if quantity <= 0:
+                    return render_template("edit_donation.html", donation=donation, user=user, error="Quantity must be greater than 0.")
+            except ValueError:
+                return render_template("edit_donation.html", donation=donation, user=user, error="Please enter a valid number for quantity.")
+                
+            try:
+                # Parse HTML5 datetime-local format (YYYY-MM-DDTHH:MM)
+                expiry_time = datetime.strptime(expiry_time_str, "%Y-%m-%dT%H:%M")
+            except ValueError:
+                return render_template("edit_donation.html", donation=donation, user=user, error="Invalid expiry time format.")
+                
+            # Update the existing object fields
+            donation.food_name = food_name
+            donation.quantity = quantity
+            donation.expiry_time = expiry_time
+            if description is not None:
+                donation.description = description
+            
+            # Save using db.session.commit() only
+            db.session.commit()
+            
+            # Redirect back to my_donations
+            return redirect(url_for("restaurant_my_donations"))
+            
+        # On GET request, render the edit form with the pre-filled donation
+        return render_template("edit_donation.html", donation=donation, user=user)
 
     @app.route("/ngo/dashboard")
     @login_required

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="py-5 bg-light min-vh-100 d-flex align-items-center">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <!-- Donation Form Card -->
+                <div class="card border-0 shadow-sm p-4 rounded-4 bg-white">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <span class="fs-1">🍲</span>
+                            <h2 class="fw-bold text-dark mt-2">Donate Food</h2>
+                            <p class="text-muted">List your surplus food to help NGOs in need.</p>
+                        </div>
+                        
+                        <!-- Show any backend validation error messages here -->
+                        {% if error %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Form submits POST request back to the restaurant_donate route -->
+                        <form method="POST" action="{{ url_for('restaurant_donate') }}">
+                            <!-- Food Name Field -->
+                            <div class="mb-3">
+                                <label for="foodName" class="form-label fw-semibold">Food Name</label>
+                                <input type="text" class="form-control form-control-lg rounded-3" id="foodName" name="food_name" placeholder="e.g., 50 Servings of Veg Biryani" required>
+                            </div>
+                            
+                            <!-- Food Type Field -->
+                            <div class="mb-3">
+                                <label for="foodType" class="form-label fw-semibold">Food Type</label>
+                                <select class="form-select form-select-lg rounded-3" id="foodType" name="food_type" required>
+                                    <option value="" disabled selected>Select food type</option>
+                                    <option value="Prepared Meals">Prepared Meals</option>
+                                    <option value="Raw Ingredients">Raw Ingredients</option>
+                                    <option value="Packaged Food">Packaged Food</option>
+                                    <option value="Bakery Items">Bakery Items</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Quantity Field -->
+                            <div class="mb-3">
+                                <label for="quantity" class="form-label fw-semibold">Quantity (Meals/Portions)</label>
+                                <input type="number" class="form-control form-control-lg rounded-3" id="quantity" name="quantity" min="1" placeholder="e.g., 50" required>
+                            </div>
+                            
+                            <!-- Expiry Time Field -->
+                            <div class="mb-3">
+                                <label for="expiryTime" class="form-label fw-semibold">Best Before / Expiry Time</label>
+                                <input type="datetime-local" class="form-control form-control-lg rounded-3" id="expiryTime" name="expiry_time" required>
+                            </div>
+                            
+                            <!-- Optional Description Field -->
+                            <div class="mb-4">
+                                <label for="description" class="form-label fw-semibold">Description (Optional)</label>
+                                <textarea class="form-control rounded-3" id="description" name="description" rows="3" placeholder="Any specific details about the food..."></textarea>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill shadow-sm fw-bold">Post Donation</button>
+                        </form>
+                        
+                        <!-- Back link to the Restaurant Dashboard -->
+                        <div class="text-center mt-4">
+                            <a href="{{ url_for('restaurant_dashboard') }}" class="text-muted text-decoration-none fw-semibold">
+                                &larr; Back to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

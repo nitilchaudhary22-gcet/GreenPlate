@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="py-5 bg-light min-vh-100">
+    <div class="container py-4">
+        <div class="row mb-4 align-items-center">
+            <div class="col-md-8">
+                <h2 class="fw-bold text-dark">My Donations</h2>
+                <p class="text-muted mb-0">View and track all your posted surplus food.</p>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{{ url_for('restaurant_donate') }}" class="btn btn-success rounded-pill px-4 shadow-sm">
+                    <i class="bi bi-plus-circle me-1"></i> Post Food
+                </a>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+            <div class="card-body p-0">
+                {% if donations %}
+                <!-- Table for displaying donations -->
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light text-muted">
+                            <tr>
+                                <th scope="col" class="ps-4">Food Name</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Expiry Time</th>
+                                <th scope="col" class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for donation in donations %}
+                            <tr>
+                                <td class="ps-4 fw-semibold text-dark">{{ donation.food_name }}</td>
+                                <td class="text-muted">{{ donation.quantity }} portions</td>
+                                <td>
+                                    <!-- Display a colorful badge based on status -->
+                                    {% if donation.status == 'available' %}
+                                        <span class="badge bg-success rounded-pill px-3">{{ donation.status | title }}</span>
+                                    {% elif donation.status == 'claimed' %}
+                                        <span class="badge bg-warning text-dark rounded-pill px-3">{{ donation.status | title }}</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary rounded-pill px-3">{{ donation.status | title }}</span>
+                                    {% endif %}
+                                </td>
+                                <!-- Format the datetime object safely -->
+                                <td class="text-muted">{{ donation.expiry_time.strftime('%b %d, %Y %I:%M %p') }}</td>
+                                <td class="text-end pe-4">
+                                    <a href="{{ url_for('edit_restaurant_donation', donation_id=donation.id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Edit</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <!-- Friendly message when no donations exist -->
+                <div class="text-center p-5">
+                    <i class="bi bi-box-seam text-muted" style="font-size: 3rem;"></i>
+                    <h4 class="mt-3 text-dark fw-bold">No Donations Yet</h4>
+                    <p class="text-muted">You haven't posted any surplus food. Start donating to help NGOs in need!</p>
+                    <a href="{{ url_for('restaurant_donate') }}" class="btn btn-outline-success rounded-pill px-4 mt-2">Post Your First Donation</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Back link to the Restaurant Dashboard -->
+        <div class="text-center mt-4">
+            <a href="{{ url_for('restaurant_dashboard') }}" class="text-muted text-decoration-none fw-semibold">
+                &larr; Back to Dashboard
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
