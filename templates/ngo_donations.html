@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-12 text-center">
+            <h1 class="display-5 fw-bold text-success mb-3">Available Food Donations</h1>
+            <p class="lead text-muted">Browse fresh food listings from local restaurants ready for donation.</p>
+        </div>
+    </div>
+
+    <!-- Donations Grid -->
+    <div class="row">
+        {% if donations %}
+            {% for donation in donations %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm h-100 border-0">
+                    <div class="card-body">
+                        <!-- Card Header with Title and Status -->
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title fw-bold mb-0 text-success">{{ donation.food_name }}</h5>
+                            <span class="badge bg-success rounded-pill px-3">{{ donation.status|capitalize }}</span>
+                        </div>
+                        
+                        <!-- Restaurant Name -->
+                        <h6 class="card-subtitle mb-3 text-muted">
+                            <i class="bi bi-shop me-2"></i>{{ donation.restaurant.full_name }}
+                        </h6>
+                        
+                        <hr>
+                        
+                        <!-- Donation Details -->
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-2">
+                                <i class="bi bi-box-seam text-primary me-2"></i>
+                                <strong>Quantity:</strong> {{ donation.quantity }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-clock-history text-danger me-2"></i>
+                                <strong>Expires:</strong> {{ donation.expiry_time.strftime('%b %d, %Y %I:%M %p') }}
+                            </li>
+                            <li>
+                                <i class="bi bi-info-circle text-info me-2"></i>
+                                <strong>Description:</strong> {{ donation.description or "No description provided." }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Empty State Message when no donations are available -->
+            <div class="col-md-12 text-center my-5">
+                <div class="p-5 bg-light rounded-4 shadow-sm border">
+                    <i class="bi bi-inbox fs-1 text-muted mb-3 d-block"></i>
+                    <h4 class="text-muted fw-bold">No food donations are currently available.</h4>
+                    <p class="text-muted mb-0">Please check back later for new listings from partner restaurants.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    
+    <!-- Navigation Back to Dashboard -->
+    <div class="row mt-4">
+        <div class="col-md-12 text-center">
+            <a href="{{ url_for('ngo_dashboard') }}" class="btn btn-outline-secondary px-4 rounded-pill">
+                <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
