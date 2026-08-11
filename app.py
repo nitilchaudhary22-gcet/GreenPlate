@@ -265,6 +265,30 @@ def create_app():
         # On GET request, render the edit form with the pre-filled donation
         return render_template("edit_donation.html", donation=donation, user=user)
 
+    @app.route("/restaurant/donation/<int:donation_id>/delete", methods=["POST"])
+    @login_required
+    def delete_restaurant_donation(donation_id):
+        # Fetch the current logged-in user
+        user = User.query.get(session["user_id"])
+        
+        # Verify role, only restaurant users can delete
+        if not user or user.role != "restaurant":
+            return redirect(url_for("home"))
+            
+        # Fetch the donation using get_or_404
+        donation = FoodDonation.query.get_or_404(donation_id)
+        
+        # Verify ownership: only the owner can delete their own donation
+        if donation.restaurant_id != session["user_id"]:
+            return redirect(url_for("restaurant_my_donations"))
+            
+        # Delete the object from the database and commit
+        db.session.delete(donation)
+        db.session.commit()
+        
+        # Redirect back to my_donations
+        return redirect(url_for("restaurant_my_donations"))
+
     @app.route("/ngo/dashboard")
     @login_required
     def ngo_dashboard():
@@ -274,6 +298,20 @@ def create_app():
             return redirect(url_for("home"))
             
         return render_template("ngo_dashboard.html", user=user)
+
+    @app.route("/ngo/donations", methods=["GET"])
+    @login_required
+    def ngo_donations():
+        user = User.query.get(session["user_id"])
+        
+        # Verify role, only ngo users can view available donations
+        if not user or user.role != "ngo":
+            return redirect(url_for("home"))
+            
+        # Fetch only available donations, ordered by newest first
+        donations = FoodDonation.query.filter_by(status="available").order_by(FoodDonation.id.desc()).all()
+        
+        return render_template("ngo_donations.html", user=user, donations=donations)
 
     @app.route("/admin/dashboard")
     @login_required
