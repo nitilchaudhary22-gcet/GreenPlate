@@ -2,6 +2,18 @@
 
 {% block content %}
 <div class="container my-5">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     <!-- Header Section -->
     <div class="row mb-4">
         <div class="col-md-12 text-center">
@@ -45,6 +57,17 @@
                                 <strong>Description:</strong> {{ donation.description or "No description provided." }}
                             </li>
                         </ul>
+                        
+                        <!-- Claim Button Form -->
+                        {% if donation.status == 'available' %}
+                        <div class="mt-auto">
+                            <form method="POST" action="{{ url_for('ngo_claim_donation', donation_id=donation.id) }}" onsubmit="return confirm('Are you sure you want to claim this donation?');">
+                                <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold shadow-sm">
+                                    <i class="bi bi-check-circle me-2"></i>Claim Donation
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

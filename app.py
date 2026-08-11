@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -312,6 +312,33 @@ def create_app():
         donations = FoodDonation.query.filter_by(status="available").order_by(FoodDonation.id.desc()).all()
         
         return render_template("ngo_donations.html", user=user, donations=donations)
+
+    @app.route("/ngo/donation/<int:donation_id>/claim", methods=["POST"])
+    @login_required
+    def ngo_claim_donation(donation_id):
+        user = User.query.get(session["user_id"])
+        
+        # Verify role, only ngo users can claim
+        if not user or user.role != "ngo":
+            return redirect(url_for("home"))
+            
+        # Ensure the donation exists
+        donation = FoodDonation.query.get_or_404(donation_id)
+        
+        # Atomically update the donation if it is still available
+        updated_rows = FoodDonation.query.filter_by(
+            id=donation_id, 
+            status="available"
+        ).update({"status": "claimed"})
+        
+        if updated_rows == 1:
+            db.session.commit()
+            flash("You have successfully claimed the donation!", "success")
+        else:
+            db.session.rollback()
+            flash("Sorry, this donation has already been claimed or is unavailable.", "danger")
+            
+        return redirect(url_for("ngo_donations"))
 
     @app.route("/admin/dashboard")
     @login_required
