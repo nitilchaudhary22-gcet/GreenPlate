@@ -329,7 +329,7 @@ def create_app():
         updated_rows = FoodDonation.query.filter_by(
             id=donation_id, 
             status="available"
-        ).update({"status": "claimed"})
+        ).update({"status": "claimed", "ngo_id": user.id})
         
         if updated_rows == 1:
             db.session.commit()
@@ -339,6 +339,20 @@ def create_app():
             flash("Sorry, this donation has already been claimed or is unavailable.", "danger")
             
         return redirect(url_for("ngo_donations"))
+
+    @app.route("/ngo/my-claims", methods=["GET"])
+    @login_required
+    def ngo_my_claims():
+        user = User.query.get(session["user_id"])
+        
+        # Verify role, only ngo users can view claims
+        if not user or user.role != "ngo":
+            return redirect(url_for("home"))
+            
+        # Fetch claims made by the current NGO, newest first
+        claims = FoodDonation.query.filter_by(ngo_id=user.id).order_by(FoodDonation.id.desc()).all()
+        
+        return render_template("ngo_my_claims.html", user=user, claims=claims)
 
     @app.route("/admin/dashboard")
     @login_required

@@ -26,8 +26,14 @@ class FoodDonation(db.Model):
     # Foreign key linking the donation to the restaurant (user) that posted it
     restaurant_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     
+    # Optional field for the NGO that claimed the donation
+    ngo_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    
     # Relationship to easily access the restaurant user from a donation, and vice versa
-    restaurant = db.relationship('User', backref=db.backref('donations', lazy=True))
+    restaurant = db.relationship('User', foreign_keys=[restaurant_id], backref=db.backref('donations', lazy=True))
+    
+    # Relationship to easily access the NGO user that claimed the donation
+    claimed_by = db.relationship('User', foreign_keys=[ngo_id], backref=db.backref('claimed_donations', lazy=True))
 
     def __repr__(self):
         # A helpful representation of the FoodDonation object for debugging
