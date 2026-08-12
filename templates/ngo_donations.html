@@ -21,6 +21,47 @@
             <p class="lead text-muted">Browse fresh food listings from local restaurants ready for donation.</p>
         </div>
     </div>
+    
+    <!-- Filters Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow-sm border-0 bg-light">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('ngo_donations') }}" class="row g-3 align-items-end">
+                        <div class="col-md-5">
+                            <label for="search" class="form-label fw-bold text-muted">Search Food or Restaurant</label>
+                            <input type="text" class="form-control" id="search" name="search" placeholder="e.g., biryani" value="{{ search_query }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="food_type" class="form-label fw-bold text-muted">Food Type</label>
+                            <select class="form-select" id="food_type" name="food_type">
+                                <option value="">All Food Types</option>
+                                <option value="Prepared Meals" {% if food_type_filter == 'Prepared Meals' %}selected{% endif %}>Prepared Meals</option>
+                                <option value="Raw Ingredients" {% if food_type_filter == 'Raw Ingredients' %}selected{% endif %}>Raw Ingredients</option>
+                                <option value="Packaged Food" {% if food_type_filter == 'Packaged Food' %}selected{% endif %}>Packaged Food</option>
+                                <option value="Bakery Items" {% if food_type_filter == 'Bakery Items' %}selected{% endif %}>Bakery Items</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-success w-100"><i class="bi bi-search me-1"></i> Search</button>
+                                <a href="{{ url_for('ngo_donations') }}" class="btn btn-outline-secondary w-100">Clear</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Results Count -->
+    {% if search_query or food_type_filter %}
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <h6 class="text-muted">Found {{ donations|length }} matching donation(s).</h6>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Donations Grid -->
     <div class="row">
@@ -77,8 +118,14 @@
             <div class="col-md-12 text-center my-5">
                 <div class="p-5 bg-light rounded-4 shadow-sm border">
                     <i class="bi bi-inbox fs-1 text-muted mb-3 d-block"></i>
+                    {% if search_query or food_type_filter %}
+                    <h4 class="text-muted fw-bold">No donations match your search.</h4>
+                    <p class="text-muted mb-3">Try adjusting your filters or search terms.</p>
+                    <a href="{{ url_for('ngo_donations') }}" class="btn btn-outline-secondary rounded-pill px-4">Clear Filters</a>
+                    {% else %}
                     <h4 class="text-muted fw-bold">No food donations are currently available.</h4>
                     <p class="text-muted mb-0">Please check back later for new listings from partner restaurants.</p>
+                    {% endif %}
                 </div>
             </div>
         {% endif %}

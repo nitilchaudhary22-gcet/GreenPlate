@@ -330,10 +330,42 @@ def create_app():
         if not user or user.role != "ngo":
             return redirect(url_for("home"))
             
-        # Fetch only available donations, ordered by newest first
-        donations = FoodDonation.query.filter_by(status="available").order_by(FoodDonation.id.desc()).all()
+        # Get filter parameters
+        search_query = request.args.get("search", "").strip()
+        food_type_filter = request.args.get("food_type", "").strip()
         
-        return render_template("ngo_donations.html", user=user, donations=donations)
+        # Base query: only available and not expired
+        now = datetime.utcnow()
+        query = FoodDonation.query.join(FoodDonation.restaurant).filter(
+            FoodDonation.status == "available",
+            FoodDonation.expiry_time > now
+        )
+        
+        # Apply search filter (food name or restaurant name)
+        if search_query:
+            search_term = f"%{search_query}%"
+            query = query.filter(
+                db.or_(
+                    FoodDonation.food_name.ilike(search_term),
+                    User.full_name.ilike(search_term)
+                )
+            )
+            
+        # Apply food type filter (it's stored in description as [Type])
+        if food_type_filter:
+            type_term = f"%[{food_type_filter}]%"
+            query = query.filter(FoodDonation.description.ilike(type_term))
+            
+        # Execute query
+        donations = query.order_by(FoodDonation.id.desc()).all()
+        
+        return render_template(
+            "ngo_donations.html", 
+            user=user, 
+            donations=donations,
+            search_query=search_query,
+            food_type_filter=food_type_filter
+        )
 
     @app.route("/ngo/donation/<int:donation_id>/claim", methods=["POST"])
     @login_required
