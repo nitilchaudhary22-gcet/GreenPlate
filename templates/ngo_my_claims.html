@@ -2,6 +2,18 @@
 
 {% block content %}
 <div class="container my-5">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
     <!-- Header Section -->
     <div class="row mb-4">
         <div class="col-md-12 text-center">
@@ -13,54 +25,70 @@
     <!-- Claims Grid -->
     <div class="row">
         {% if claims %}
-        {% for donation in claims %}
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm h-100 border-0">
-                <div class="card-body">
-                    <!-- Card Header with Title and Status -->
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h5 class="card-title fw-bold mb-0 text-primary">{{ donation.food_name }}</h5>
-                        <span class="badge bg-primary rounded-pill px-3">{{ donation.status|capitalize }}</span>
+            {% for donation in claims %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm h-100 border-0">
+                    <div class="card-body d-flex flex-column">
+                        <!-- Card Header with Title and Status -->
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title fw-bold mb-0 text-primary">{{ donation.food_name }}</h5>
+                            
+                            {% if donation.status == 'picked_up' %}
+                                <span class="badge bg-success rounded-pill px-3">Picked Up</span>
+                            {% else %}
+                                <span class="badge bg-primary rounded-pill px-3">{{ donation.status|capitalize }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Restaurant Name -->
+                        <h6 class="card-subtitle mb-3 text-muted">
+                            <i class="bi bi-shop me-2"></i>{{ donation.restaurant.full_name }}
+                        </h6>
+                        
+                        <hr>
+                        
+                        <!-- Donation Details -->
+                        <ul class="list-unstyled mb-4">
+                            <li class="mb-2">
+                                <i class="bi bi-box-seam text-secondary me-2"></i>
+                                <strong>Quantity:</strong> {{ donation.quantity }}
+                            </li>
+                            <li class="mb-2">
+                                <i class="bi bi-clock-history text-danger me-2"></i>
+                                <strong>Expires:</strong> {{ donation.expiry_time.strftime('%b %d, %Y %I:%M %p') }}
+                            </li>
+                            <li>
+                                <i class="bi bi-info-circle text-info me-2"></i>
+                                <strong>Description:</strong> {{ donation.description or "No description provided." }}
+                            </li>
+                        </ul>
+                        
+                        <!-- Pickup Action Button -->
+                        {% if donation.status == 'claimed' %}
+                            <div class="mt-auto pt-3">
+                                <form method="POST" action="{{ url_for('ngo_pickup_donation', donation_id=donation.id) }}" onsubmit="return confirm('Have you picked up this donation?');">
+                                    <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold shadow-sm">
+                                        <i class="bi bi-check-circle me-2"></i>Mark as Picked Up
+                                    </button>
+                                </form>
+                            </div>
+                        {% endif %}
                     </div>
-
-                    <!-- Restaurant Name -->
-                    <h6 class="card-subtitle mb-3 text-muted">
-                        <i class="bi bi-shop me-2"></i>{{ donation.restaurant.full_name }}
-                    </h6>
-
-                    <hr>
-
-                    <!-- Donation Details -->
-                    <ul class="list-unstyled mb-4">
-                        <li class="mb-2">
-                            <i class="bi bi-box-seam text-secondary me-2"></i>
-                            <strong>Quantity:</strong> {{ donation.quantity }}
-                        </li>
-                        <li class="mb-2">
-                            <i class="bi bi-clock-history text-danger me-2"></i>
-                            <strong>Expires:</strong> {{ donation.expiry_time.strftime('%b %d, %Y %I:%M %p') }}
-                        </li>
-                        <li>
-                            <i class="bi bi-info-circle text-info me-2"></i>
-                            <strong>Description:</strong> {{ donation.description or "No description provided." }}
-                        </li>
-                    </ul>
                 </div>
             </div>
-        </div>
-        {% endfor %}
+            {% endfor %}
         {% else %}
-        <!-- Empty State Message when no claims exist -->
-        <div class="col-md-12 text-center my-5">
-            <div class="p-5 bg-light rounded-4 shadow-sm border">
-                <i class="bi bi-inbox fs-1 text-muted mb-3 d-block"></i>
-                <h4 class="text-muted fw-bold">No donations claimed yet.</h4>
-                <p class="text-muted mb-0">Visit the Browse Donations page to find available listings.</p>
+            <!-- Empty State Message when no claims exist -->
+            <div class="col-md-12 text-center my-5">
+                <div class="p-5 bg-light rounded-4 shadow-sm border">
+                    <i class="bi bi-inbox fs-1 text-muted mb-3 d-block"></i>
+                    <h4 class="text-muted fw-bold">No donations claimed yet.</h4>
+                    <p class="text-muted mb-0">Visit the Browse Donations page to find available listings.</p>
+                </div>
             </div>
-        </div>
         {% endif %}
     </div>
-
+    
     <!-- Navigation Back to Dashboard -->
     <div class="row mt-4">
         <div class="col-md-12 text-center">

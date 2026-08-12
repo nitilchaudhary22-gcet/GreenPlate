@@ -354,6 +354,32 @@ def create_app():
         
         return render_template("ngo_my_claims.html", user=user, claims=claims)
 
+    @app.route("/ngo/donation/<int:donation_id>/pickup", methods=["POST"])
+    @login_required
+    def ngo_pickup_donation(donation_id):
+        user = User.query.get(session["user_id"])
+        
+        # Verify role, only ngo users can mark as picked up
+        if not user or user.role != "ngo":
+            return redirect(url_for("home"))
+            
+        # Secure conditional update
+        # Ensures donation belongs to the current NGO and is in 'claimed' status
+        updated_rows = FoodDonation.query.filter_by(
+            id=donation_id,
+            status="claimed",
+            ngo_id=user.id
+        ).update({"status": "picked_up"})
+        
+        if updated_rows == 1:
+            db.session.commit()
+            flash("Donation marked as picked up successfully.", "success")
+        else:
+            db.session.rollback()
+            flash("This donation cannot be marked as picked up.", "danger")
+            
+        return redirect(url_for("ngo_my_claims"))
+
     @app.route("/admin/dashboard")
     @login_required
     def admin_dashboard():

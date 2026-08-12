@@ -41,6 +41,8 @@
                                         <span class="badge bg-success rounded-pill px-3">{{ donation.status | title }}</span>
                                     {% elif donation.status == 'claimed' %}
                                         <span class="badge bg-warning text-dark rounded-pill px-3">{{ donation.status | title }}</span>
+                                    {% elif donation.status == 'picked_up' %}
+                                        <span class="badge bg-info text-dark rounded-pill px-3">Picked Up</span>
                                     {% else %}
                                         <span class="badge bg-secondary rounded-pill px-3">{{ donation.status | title }}</span>
                                     {% endif %}
