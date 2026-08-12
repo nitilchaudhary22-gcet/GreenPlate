@@ -8,6 +8,32 @@
             <p class="lead">Welcome back, {{ user.full_name }}!</p>
         </div>
     </div>
+    <div class="row mb-4 justify-content-center">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-0 bg-success text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Available Donations</h5>
+                    <h2 class="display-6 fw-bold">{{ stats.available }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-0 bg-warning text-dark">
+                <div class="card-body text-center">
+                    <h5 class="card-title">My Claims</h5>
+                    <h2 class="display-6 fw-bold">{{ stats.my_claims }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-0 bg-info text-white">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Picked Up</h5>
+                    <h2 class="display-6 fw-bold">{{ stats.picked_up }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="col-md-4">
             <div class="card shadow-sm border-0 feature-card mb-4">

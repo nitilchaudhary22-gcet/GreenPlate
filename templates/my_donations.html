@@ -41,8 +41,14 @@
                                         <span class="badge bg-success rounded-pill px-3">{{ donation.status | title }}</span>
                                     {% elif donation.status == 'claimed' %}
                                         <span class="badge bg-warning text-dark rounded-pill px-3">{{ donation.status | title }}</span>
+                                        {% if donation.ngo_id %}
+                                        <div class="small text-muted mt-1">Claimed by: {{ donation.claimed_by.full_name }}</div>
+                                        {% endif %}
                                     {% elif donation.status == 'picked_up' %}
                                         <span class="badge bg-info text-dark rounded-pill px-3">Picked Up</span>
+                                        {% if donation.ngo_id %}
+                                        <div class="small text-muted mt-1">Claimed by: {{ donation.claimed_by.full_name }}</div>
+                                        {% endif %}
                                     {% else %}
                                         <span class="badge bg-secondary rounded-pill px-3">{{ donation.status | title }}</span>
                                     {% endif %}

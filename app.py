@@ -131,7 +131,19 @@ def create_app():
         if not user or user.role != "restaurant":
             return redirect(url_for("home"))
             
-        return render_template("restaurant_dashboard.html", user=user)
+        total_donations = FoodDonation.query.filter_by(restaurant_id=user.id).count()
+        available_donations = FoodDonation.query.filter_by(restaurant_id=user.id, status="available").count()
+        claimed_donations = FoodDonation.query.filter_by(restaurant_id=user.id, status="claimed").count()
+        picked_up_donations = FoodDonation.query.filter_by(restaurant_id=user.id, status="picked_up").count()
+        
+        stats = {
+            "total": total_donations,
+            "available": available_donations,
+            "claimed": claimed_donations,
+            "picked_up": picked_up_donations
+        }
+            
+        return render_template("restaurant_dashboard.html", user=user, stats=stats)
 
     @app.route("/restaurant/donate", methods=["GET", "POST"])
     @login_required
@@ -297,7 +309,17 @@ def create_app():
         if not user or user.role != "ngo":
             return redirect(url_for("home"))
             
-        return render_template("ngo_dashboard.html", user=user)
+        available_donations = FoodDonation.query.filter_by(status="available").count()
+        my_claims = FoodDonation.query.filter_by(ngo_id=user.id, status="claimed").count()
+        picked_up = FoodDonation.query.filter_by(ngo_id=user.id, status="picked_up").count()
+        
+        stats = {
+            "available": available_donations,
+            "my_claims": my_claims,
+            "picked_up": picked_up
+        }
+            
+        return render_template("ngo_dashboard.html", user=user, stats=stats)
 
     @app.route("/ngo/donations", methods=["GET"])
     @login_required
