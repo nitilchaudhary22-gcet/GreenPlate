@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show mb-4 shadow-sm" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-5">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="card-title fw-bold text-success mb-0">{{ donation.food_name }}</h2>
+                        <span class="badge {% if donation.status == 'available' %}bg-success{% elif donation.status == 'claimed' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %} rounded-pill px-3 fs-6">
+                            {{ donation.status|title }}
+                        </span>
+                    </div>
+
+                    <h5 class="text-muted mb-4">
+                        <i class="bi bi-shop me-2"></i>{{ donation.restaurant.full_name }}
+                    </h5>
+
+                    <hr>
+
+                    <ul class="list-unstyled mb-4 fs-5">
+                        <li class="mb-3">
+                            <i class="bi bi-box-seam text-primary me-3"></i>
+                            <strong>Quantity:</strong> {{ donation.quantity }}
+                        </li>
+                        <li class="mb-3">
+                            <i class="bi bi-clock-history text-danger me-3"></i>
+                            <strong>Expires:</strong> {{ donation.expiry_time.strftime('%b %d, %Y %I:%M %p') }}
+                        </li>
+                        {% if food_type %}
+                        <li class="mb-3">
+                            <i class="bi bi-tag text-secondary me-3"></i>
+                            <strong>Food Type:</strong> {{ food_type }}
+                        </li>
+                        {% endif %}
+                        <li class="mb-3">
+                            <i class="bi bi-info-circle text-info me-3"></i>
+                            <strong>Description:</strong> {{ donation.description or "No description provided." }}
+                        </li>
+                    </ul>
+
+                    <div class="d-flex justify-content-between mt-5">
+                        <a href="{{ url_for('ngo_donations') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Donations
+                        </a>
+                        
+                        {% if donation.status == 'available' and donation.expiry_time > now %}
+                        <form method="POST" action="{{ url_for('ngo_claim_donation', donation_id=donation.id) }}" onsubmit="return confirm('Are you sure you want to claim this donation?');">
+                            <button type="submit" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm">
+                                <i class="bi bi-check-circle me-2"></i>Claim Donation
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

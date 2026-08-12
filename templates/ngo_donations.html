@@ -99,16 +99,12 @@
                             </li>
                         </ul>
                         
-                        <!-- Claim Button Form -->
-                        {% if donation.status == 'available' %}
+                        <!-- View Details Button -->
                         <div class="mt-auto">
-                            <form method="POST" action="{{ url_for('ngo_claim_donation', donation_id=donation.id) }}" onsubmit="return confirm('Are you sure you want to claim this donation?');">
-                                <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold shadow-sm">
-                                    <i class="bi bi-check-circle me-2"></i>Claim Donation
-                                </button>
-                            </form>
+                            <a href="{{ url_for('ngo_donation_detail', donation_id=donation.id) }}" class="btn btn-outline-primary w-100 rounded-pill fw-bold shadow-sm">
+                                <i class="bi bi-eye me-2"></i>View Details
+                            </a>
                         </div>
-                        {% endif %}
                     </div>
                 </div>
             </div>

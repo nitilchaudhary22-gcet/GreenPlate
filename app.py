@@ -367,6 +367,29 @@ def create_app():
             food_type_filter=food_type_filter
         )
 
+    @app.route("/ngo/donation/<int:donation_id>", methods=["GET"])
+    @login_required
+    def ngo_donation_detail(donation_id):
+        user = User.query.get(session["user_id"])
+        
+        # Verify role, only ngo users can view
+        if not user or user.role != "ngo":
+            return redirect(url_for("home"))
+            
+        # Ensure the donation exists
+        donation = FoodDonation.query.get_or_404(donation_id)
+        
+        # Extract food type from description if it exists
+        food_type = None
+        description_text = donation.description or ""
+        if description_text.startswith("[") and "]" in description_text:
+            end_idx = description_text.find("]")
+            food_type = description_text[1:end_idx]
+        
+        now = datetime.utcnow()
+        
+        return render_template("ngo_donation_detail.html", user=user, donation=donation, food_type=food_type, now=now)
+
     @app.route("/ngo/donation/<int:donation_id>/claim", methods=["POST"])
     @login_required
     def ngo_claim_donation(donation_id):
@@ -379,15 +402,23 @@ def create_app():
         # Ensure the donation exists
         donation = FoodDonation.query.get_or_404(donation_id)
         
-        # Atomically update the donation if it is still available
-        updated_rows = FoodDonation.query.filter_by(
-            id=donation_id, 
-            status="available"
+        # Check expiry
+        now = datetime.utcnow()
+        if donation.expiry_time <= now:
+            flash("Sorry, this donation has expired and cannot be claimed.", "danger")
+            return redirect(url_for("ngo_donations"))
+        
+        # Atomically update the donation if it is still available and not expired
+        updated_rows = FoodDonation.query.filter(
+            FoodDonation.id == donation_id,
+            FoodDonation.status == "available",
+            FoodDonation.expiry_time > now
         ).update({"status": "claimed", "ngo_id": user.id})
         
         if updated_rows == 1:
             db.session.commit()
             flash("You have successfully claimed the donation!", "success")
+            return redirect(url_for("ngo_my_claims"))
         else:
             db.session.rollback()
             flash("Sorry, this donation has already been claimed or is unavailable.", "danger")
